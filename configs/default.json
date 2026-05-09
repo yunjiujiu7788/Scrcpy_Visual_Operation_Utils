@@ -1,0 +1,117 @@
+{
+  "device": {
+    "adb_exec_path": "C:\\Android\\platform-tools\\adb.exe",
+    "device_address": "3f44fd1a",
+    "screenshot_quality": 30,
+    "screencap_method": "fast",
+    "input_method": "adb"
+  },
+  "targets": [
+    {
+      "target_id": "button_confirm",
+      "type": "template",
+      "image_path": "confirm_button.png",
+      "roi": null,
+      "threshold": 0.8
+    },
+    {
+      "target_id": "text_start",
+      "type": "ocr",
+      "text": "开始",
+      "roi": null,
+      "threshold": 0.5
+    },
+    {
+      "target_id": "icon_setting",
+      "type": "feature",
+      "image_path": "setting_icon.png",
+      "roi": null,
+      "threshold": 0.6
+    },
+    {
+      "target_id": "top_right_region",
+      "type": "coordinate",
+      "roi": [900, 0, 180, 180],
+      "threshold": 1.0
+    }
+  ],
+  "tasks": [
+    {
+      "task_name": "启动检查",
+      "trigger": "on_start",
+      "steps": [
+        {
+          "action": "wait_target",
+          "target_id": "text_start",
+          "timeout_ms": 10000,
+          "max_retries": 10,
+          "retry_interval_ms": 1000,
+          "wait_after_ms": 500
+        },
+        {
+          "action": "tap",
+          "target_id": "text_start",
+          "wait_after_ms": 1000
+        }
+      ]
+    },
+    {
+      "task_name": "每日签到",
+      "trigger": "on_schedule",
+      "cron": "0 8 * * *",
+      "steps": [
+        {
+          "action": "wait_target",
+          "target_id": "button_confirm",
+          "timeout_ms": 5000,
+          "max_retries": 3,
+          "retry_interval_ms": 1000
+        },
+        {
+          "action": "tap",
+          "target_id": "button_confirm",
+          "offset": [0, 0],
+          "wait_before_ms": 200,
+          "wait_after_ms": 1000
+        }
+      ]
+    },
+    {
+      "task_name": "启动应用",
+      "trigger": "manual",
+      "steps": [
+        {
+          "action": "wait_ms",
+          "duration_ms": 2000
+        },
+        {
+          "action": "tap",
+          "target_id": "icon_setting",
+          "wait_after_ms": 2000
+        },
+        {
+          "action": "swipe",
+          "start_coord": [500, 1200],
+          "end_coord": [500, 600],
+          "duration_ms": 500,
+          "wait_after_ms": 1000
+        },
+        {
+          "action": "tap",
+          "start_coord": [300, 800],
+          "wait_after_ms": 500
+        },
+        {
+          "action": "input_text",
+          "text": "Hello World",
+          "wait_after_ms": 500
+        },
+        {
+          "action": "key_event",
+          "keycode": "enter",
+          "wait_after_ms": 500
+        }
+      ]
+    }
+  ]
+}
