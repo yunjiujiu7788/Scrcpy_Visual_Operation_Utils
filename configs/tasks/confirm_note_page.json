@@ -1,0 +1,10 @@
+[
+  {
+    "action": "wait_target",
+    "target_id": "note_detail_identifier",
+    "target_type": "template",
+    "timeout_ms": 5000,
+    "max_retries": 5,
+    "retry_interval_ms": 1000
+  }
+]

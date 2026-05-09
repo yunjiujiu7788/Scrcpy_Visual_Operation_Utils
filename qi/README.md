@@ -1,37 +1,45 @@
 # Scrcpy 视觉操作通用工具
 
-基于 MaaFramework + OpenCV 的手机视觉自动化框架。
+基于 MaaFramework + OpenCV + PaddleOCR 的手机视觉自动化框架。
 
 ## 项目结构
 
 ```
 D:\pycharmobject\Scrcpy 视觉操作通用工具\
 ├── main.py                      # 主入口
-├── task_xiaohongshu.py          # 小红书自动化主控脚本
 ├── requirements.txt             # Python 依赖
 ├── start.bat                    # Windows 启动脚本
 ├── .env                         # 环境变量配置
 ├── .gitignore
 ├── README.md
-├── XHS AUTO_TEST.md             # 小红书自动化测试文档
 ├── configs/
 │   ├── default.json             # 默认配置
-│   ├── example_task.json        # 示例任务配置
-│   └── tasks/                   # 原子操作任务目录
-│       ├── confirm_homepage.json    # 确认主页
-│       ├── confirm_note_page.json   # 确认笔记界面
-│       ├── open_note_1.json         # 点击左上角笔记
-│       ├── open_note_2.json         # 点击另一指定笔记
-│       ├── enter_chat_combo.json    # 进入私聊组合动作
-│       └── send_message.json        # 发送消息
+│   └── example_task.json        # 示例任务配置
 ├── images/                      # 模板图片目录
 ├── logs/                        # 日志和截图输出
 ├── app/
 │   ├── config.py                # 配置模型 (Pydantic v2)
 │   ├── controller.py            # 设备控制器 (MaaFramework AdbController)
 │   ├── executor.py              # 任务执行器 (编排/重试)
+│   ├── recognizer/
+│   │   ├── base.py              # 识别器基类
+│   │   ├── template_matcher.py  # 模板匹配识别 (OpenCV)
+│   │   ├── ocr_recognizer.py    # OCR 识别 (PaddleOCR)
+│   │   ├── feature_matcher.py   # 特征匹配识别 (SIFT/ORB)
+│   │   └── engine.py            # 识别引擎 (统一调度)
+│   ├── actions/
+│   │   ├── base.py              # 动作基类
+│   │   ├── tap.py               # 点击动作
+│   │   ├── swipe.py             # 滑动动作
+│   │   ├── text_input.py        # 文字输入
+│   │   ├── wait.py              # 等待动作
+│   │   ├── long_press.py        # 长按动作
+│   │   ├── key_event.py         # 按键事件
+│   │   └── engine.py            # 动作引擎 (统一调度)
 │   └── utils/
-│       └── log_setup.py         # 日志配置 (loguru)
+│       ├── log_setup.py         # 日志配置 (loguru)
+│       ├── screenshot.py        # 截图工具
+│       └── keycode_constants.py # 按键码常量
 └── scripts/
     └── capture_template.py      # 模板图片截取工具
 ```
@@ -44,16 +52,19 @@ D:\pycharmobject\Scrcpy 视觉操作通用工具\
 pip install -r requirements.txt
 ```
 
-### 2. 配置 ADB
+> PaddleOCR 需要额外安装 paddlepaddle，详见 [PaddleOCR 官方文档](https://github.com/PaddlePaddle/PaddleOCR)
 
-确保已安装 Android SDK 并配置环境变量：
+### 2. 连接设备
+
+确保手机已通过 ADB 连接：
 
 ```bash
-# 验证 ADB 配置
 adb devices
+# 或通过 scrcpy 无线连接:
+adb connect 127.0.0.1:5555
 ```
 
-### 3. 运行主程序
+### 3. 运行
 
 ```bash
 # 使用默认配置
@@ -66,40 +77,6 @@ python main.py -t "启动应用"
 python main.py -c configs/example_task.json
 ```
 
-## 小红书自动化
-
-### 功能说明
-
-自动浏览小红书笔记，识别包含"母婴"关键词的内容，并发送私信。
-
-### 运行方式
-
-```bash
-python task_xiaohongshu.py
-```
-
-按 `Ctrl+C` 中断循环。
-
-### 流程说明
-
-1. 确认小红书主页
-2. 点击笔记进入详情
-3. OCR 识别笔记内容
-4. 判断是否包含"母婴"关键词
-5. 进入用户主页 → 点击私聊 → 发送消息
-6. 返回主页处理下一篇笔记
-7. 滑动屏幕循环执行
-
-### 模板图片
-
-需准备以下模板图片放入 `images/` 目录：
-
-| 图片名称 | 用途说明 |
-|---------|---------|
-| `homepage_identifier.png` | 小红书主页标识 |
-| `note_detail_identifier.png` | 笔记详情页标识 |
-| `chat_page_identifier.png` | 聊天界面特征图片 |
-
 ## 配置说明
 
 ### 设备配置
@@ -107,8 +84,7 @@ python task_xiaohongshu.py
 ```json
 {
   "device": {
-    "adb_exec_path": "C:\\Android\\platform-tools\\adb.exe",
-    "device_address": "3f44fd1a",
+    "adb_path": "127.0.0.1:5555",
     "screenshot_quality": 30,
     "screencap_method": "fast",
     "input_method": "adb"
@@ -116,12 +92,21 @@ python task_xiaohongshu.py
 }
 ```
 
+也通过环境变量覆盖：
+
+```bash
+# .env
+ADB_PATH=192.168.1.100:5555
+SCREENSHOT_QUALITY=50
+```
+
 ### 目标类型
 
 | 类型 | 说明 | 依赖 |
 |------|------|------|
 | `template` | 模板匹配 | 模板图片 (PNG) |
-| `ocr` | 文字识别 | Tesseract |
+| `ocr` | 文字识别 | PaddleOCR |
+| `feature` | 特征匹配 | 模板图片 |
 | `coordinate` | 固定坐标 | 无 |
 
 ### 动作类型
@@ -152,18 +137,3 @@ python scripts/capture_template.py --no-crop
 - `app_YYYY-MM-DD.log`: 全部日志
 - `error_YYYY-MM-DD.log`: 错误日志
 - `screenshots/`: 截图记录（含失败时自动保存）
-
-## 技术栈
-
-- **框架**: MaaFramework (MaaFw >= 5.0.0)
-- **配置**: Pydantic v2
-- **图像处理**: OpenCV
-- **日志**: loguru
-- **异步**: asyncio
-
-## 注意事项
-
-1. 确保手机已开启 USB 调试模式
-2. 首次运行需要授权 ADB 连接
-3. 建议使用 scrcpy 查看手机屏幕：`scrcpy --no-audio`
-4. OCR 功能需要安装 Tesseract 并配置中文语言包

@@ -1,0 +1,17 @@
+[
+  {
+    "action": "tap",
+    "start_coord": [200, 1700],
+    "wait_after_ms": 500
+  },
+  {
+    "action": "input_text",
+    "text": "你好，我对母婴产品很感兴趣，想了解一下",
+    "wait_after_ms": 500
+  },
+  {
+    "action": "tap",
+    "start_coord": [1000, 100],
+    "wait_after_ms": 1000
+  }
+]

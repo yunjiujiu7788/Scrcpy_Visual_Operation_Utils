@@ -33,6 +33,34 @@
       "type": "coordinate",
       "roi": [900, 0, 180, 180],
       "threshold": 1.0
+    },
+    {
+      "target_id": "homepage_identifier",
+      "type": "template",
+      "image_path": "homepage_identifier.png",
+      "roi": null,
+      "threshold": 0.8
+    },
+    {
+      "target_id": "note_detail_identifier",
+      "type": "template",
+      "image_path": "note_detail_identifier.png",
+      "roi": null,
+      "threshold": 0.8
+    },
+    {
+      "target_id": "user_page_identifier",
+      "type": "ocr",
+      "text": "关注|粉丝|获赞与收藏|私信|笔记|小红书号|IP属地",
+      "roi": [0, 0, 1080, 900],
+      "threshold": 0.5
+    },
+    {
+      "target_id": "chat_page_identifier",
+      "type": "template",
+      "image_path": "chat_page_identifier.png",
+      "roi": null,
+      "threshold": 0.75
     }
   ],
   "tasks": [

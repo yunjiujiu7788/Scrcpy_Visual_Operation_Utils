@@ -1,0 +1,24 @@
+[
+  {
+    "action": "tap",
+    "start_coord": [80, 120],
+    "wait_after_ms": 1500
+  },
+  {
+    "action": "wait_target",
+    "target_id": "user_page_identifier",
+    "target_type": "ocr",
+    "timeout_ms": 5000
+  },
+  {
+    "action": "tap",
+    "start_coord": [900, 1000],
+    "wait_after_ms": 1500
+  },
+  {
+    "action": "wait_target",
+    "target_id": "chat_page_identifier",
+    "target_type": "template",
+    "timeout_ms": 5000
+  }
+]

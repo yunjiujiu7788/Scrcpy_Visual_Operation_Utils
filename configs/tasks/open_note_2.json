@@ -1,0 +1,7 @@
+[
+  {
+    "action": "tap",
+    "start_coord": [700, 250],
+    "wait_after_ms": 2000
+  }
+]
