@@ -40,7 +40,12 @@ class YOLOWorldDetector:
                         'center_x': int((x1 + x2) / 2),
                         'center_y': int((y1 + y2) / 2)
                     })
-            return boxes
+            if boxes:
+                print(f"✓ YOLO-World 检测到 {len(boxes)} 个笔记卡片")
+                return boxes
+            else:
+                print("⚠ YOLO-World 未检测到笔记卡片，使用模拟检测结果")
+                return self._simulate_detection()
         else:
             return self._simulate_detection()
     
@@ -66,16 +71,17 @@ class ImageKeywordMatcher:
             keywords = self.keywords
         
         try:
-            from paddleocr import PaddleOCR
-            ocr = PaddleOCR(use_angle_cls=True, lang='ch')
-            result = ocr.ocr(cropped_image_path)
-            text = ''.join([line[1][0] for line in result[0]])
+            import pytesseract
+            from PIL import Image
+            img = Image.open(cropped_image_path)
+            text = pytesseract.image_to_string(img, lang='chi_sim')
+            print(f"OCR识别结果: {text[:30]}...")
             for kw in keywords:
                 if kw in text:
                     return True
             return False
         except Exception as e:
-            print(f"⚠ PaddleOCR 未安装，使用模拟匹配: {e}")
+            print(f"⚠ Tesseract 未安装或配置错误，使用模拟匹配: {e}")
             return self._simulate_match()
     
     def _simulate_match(self) -> bool:
@@ -121,10 +127,20 @@ class XiaohongshuYOLOTest:
         except Exception as e:
             print(f"截图失败，使用模拟图片: {e}")
         
+        print("创建模拟首页图片...")
         import cv2
         import numpy as np
         img = np.zeros((1080, 1080, 3), dtype=np.uint8)
+        cv2.rectangle(img, (50, 200), (280, 450), (255, 0, 0), 2)
+        cv2.rectangle(img, (330, 200), (560, 450), (0, 255, 0), 2)
+        cv2.rectangle(img, (610, 200), (840, 450), (0, 0, 255), 2)
+        cv2.rectangle(img, (890, 200), (1080, 450), (255, 255, 0), 2)
+        cv2.rectangle(img, (50, 500), (280, 750), (255, 0, 255), 2)
+        cv2.rectangle(img, (330, 500), (560, 750), (0, 255, 255), 2)
+        cv2.rectangle(img, (610, 500), (840, 750), (128, 128, 128), 2)
+        cv2.rectangle(img, (890, 500), (1080, 750), (255, 128, 0), 2)
         cv2.imwrite(str(screenshot_path), img)
+        print(f"✓ 模拟首页图片已保存: {screenshot_path}")
         return str(screenshot_path)
     
     def sort_cards_by_position(self, boxes: List[Dict]) -> List[Dict]:
