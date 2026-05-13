@@ -6,7 +6,7 @@
   },
   {
     "action": "input_text",
-    "text": "你好，我对母婴产品很感兴趣，想了解一下",
+    "text": "你好",
     "wait_after_ms": 500
   },
   {

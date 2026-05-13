@@ -5,6 +5,8 @@ __pycache__/
 dist/
 build/
 *.egg
+venv*/
+env*/
 
 # 环境变量
 .env
@@ -27,7 +29,18 @@ Thumbs.db
 *.onnx
 *.param
 *.bin
+*.pt
+
+# 训练输出
+runs/
+weights/
 
 # 临时文件
 temp/
 tmp/
+raw_screenshots/
+dist.zip
+*.spec
+
+# 标签工具输出
+templates/
